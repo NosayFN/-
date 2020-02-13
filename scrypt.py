@@ -1,3 +1,4 @@
+import requests
 import sys
 import os
 
@@ -8,6 +9,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QGridLayout, QWidget, QLa
 
 SCREEN_SIZE = [600, 450]
 error = 'error, try again'
+
 
 class MapWidget(QMainWindow):
     def __init__(self):
