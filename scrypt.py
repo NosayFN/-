@@ -2,9 +2,9 @@ import sys
 import os
 
 import requests
-from PyQt5 import uic
+from PyQt5 import uic, QtCore
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QGridLayout, QWidget, QLabel
 
 SCREEN_SIZE = [600, 450]
 error = 'error, try again'
@@ -13,18 +13,21 @@ class MapWidget(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi('MainMap.ui', self)
+        self.SizeNowLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.DrawMapBut.clicked.connect(self.draw_map)
+        self.counter = 0
 
     def draw_map(self):
         xcoord = float(self.XInput.text())
         ycoord = float(self.YInput.text())
-        size = int(self.SizeInput.text())
+        self.size = int(self.SizeInput.text())
+        self.size += self.counter
         self.XNowLabel.setText("{}".format(xcoord))
         self.YNowLabel.setText("{}".format(ycoord))
-        self.SizeNowLabel.setText("{}".format(size))
+        self.SizeNowLabel.setText("{}".format(self.size))
 
         map_request = "http://static-maps.yandex.ru/1.x/?ll={},{}&l=map&z={}".\
-            format(xcoord, ycoord, size)
+            format(xcoord, ycoord, self.size)
         response = requests.get(map_request)
 
         if not response:
@@ -39,6 +42,15 @@ class MapWidget(QMainWindow):
             pixmap = QPixmap(map_file)
             self.MapLabel.setPixmap(pixmap)
             os.remove(map_file)
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_PageUp:
+            if self.size < 17:
+                self.counter += 1
+        if event.key() == QtCore.Qt.Key_PageDown:
+            if self.size > 0:
+                self.counter -= 1
+        event.accept()
 
 
 app = QApplication(sys.argv)
